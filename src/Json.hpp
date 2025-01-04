@@ -18,6 +18,7 @@ namespace json {
 
     struct JsonNumber {
         double value;
+        [[nodiscard]] bool operator==(const JsonNumber& rhs) const = default;
     };
 
     struct JsonBoolean {
@@ -43,54 +44,53 @@ namespace json {
         std::vector<std::pair<JsonString, std::shared_ptr<JsonContainer>>> values;
     };
 
-class JsonContainer {
-private:
-    using JsonVariant = std::variant<JsonString, JsonNumber, JsonBoolean, JsonNull, JsonArray, JsonObject>;
-    JsonVariant m_data;
-    public:
+    class JsonContainer {
+    private:
+        using JsonVariant = std::variant<JsonString, JsonNumber, JsonBoolean, JsonNull, JsonArray, JsonObject>;
+        JsonVariant m_data;
+        public:
 
-    template<typename T>
-    explicit JsonContainer(T const& data): JsonContainer() {
-        to_json(*this, data);
-    } ;
+        template<typename T>
+        explicit JsonContainer(T const& data): JsonContainer() {
+            to_json(*this, data);
+        }
 
-    JsonContainer() : m_data(JsonNull{}) {};
+        JsonContainer() : m_data(JsonNull{}) {}
 
-    explicit JsonContainer(int data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {}
-    explicit JsonContainer(float data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {}
-    explicit JsonContainer(double data) : m_data(JsonVariant{JsonNumber{data}}) {}
-    explicit JsonContainer(unsigned int data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {}
-    explicit JsonContainer(std::size_t data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {}
+        explicit JsonContainer(int data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {}
+        explicit JsonContainer(float data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {}
+        explicit JsonContainer(double data) : m_data(JsonVariant{JsonNumber{data}}) {}
+        explicit JsonContainer(unsigned int data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {}
+        explicit JsonContainer(std::size_t data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {}
 
-    explicit JsonContainer(std::string data) : m_data(JsonVariant{JsonString{std::move(data)}}) {}
-    explicit JsonContainer(const char* data) : m_data(JsonVariant{JsonString{data}}) {}
-    explicit JsonContainer(bool data) : m_data(JsonVariant{JsonBoolean{data}}) {}
-    explicit JsonContainer(JsonVariant data) : m_data(std::move(data)) {}
-    explicit JsonContainer(nullptr_t) : m_data(JsonNull{}) {}
-    explicit JsonContainer(JsonArray data) : m_data(std::move(data)) {}
-    explicit JsonContainer(JsonObject data) : m_data(std::move(data)) {}
-    JsonContainer(std::initializer_list<std::pair<JsonString, JsonContainer>> init) : m_data(JsonObject{init}) {}
-
-
-    explicit JsonContainer(JsonString data) : m_data(std::move(data)) {};
-    explicit JsonContainer(JsonNumber data) : m_data(data) {};
-    explicit JsonContainer(JsonBoolean data) : m_data(data) {};
-    explicit JsonContainer(JsonNull data) : m_data(data) {};
-
-    [[nodiscard]] bool is_string() const;
-    [[nodiscard]] bool is_number() const;
-    [[nodiscard]] bool is_boolean() const;
-    [[nodiscard]] bool is_null() const;
-    [[nodiscard]] bool is_array() const;
-    [[nodiscard]] bool is_object() const;
-
-    [[nodiscard]] std::string string() const;
-    [[nodiscard]] bool boolean() const;
-    [[nodiscard]] double number() const;
+        explicit JsonContainer(std::string data) : m_data(JsonVariant{JsonString{std::move(data)}}) {}
+        explicit JsonContainer(const char* data) : m_data(JsonVariant{JsonString{data}}) {}
+        explicit JsonContainer(bool data) : m_data(JsonVariant{JsonBoolean{data}}) {}
+        explicit JsonContainer(JsonVariant data) : m_data(std::move(data)) {}
+        explicit JsonContainer(nullptr_t) : m_data(JsonNull{}) {}
+        explicit JsonContainer(JsonArray data) : m_data(std::move(data)) {}
+        explicit JsonContainer(JsonObject data) : m_data(std::move(data)) {}
+        JsonContainer(std::initializer_list<std::pair<JsonString, JsonContainer>> init) : m_data(JsonObject{init}) {}
 
 
+        explicit JsonContainer(JsonString data) : m_data(std::move(data)) {}
+        explicit JsonContainer(JsonNumber data) : m_data(data) {}
+        explicit JsonContainer(JsonBoolean data) : m_data(data) {}
+        explicit JsonContainer(JsonNull data) : m_data(data) {}
 
-};
+        [[nodiscard]] bool is_string() const;
+        [[nodiscard]] bool is_number() const;
+        [[nodiscard]] bool is_boolean() const;
+        [[nodiscard]] bool is_null() const;
+        [[nodiscard]] bool is_array() const;
+        [[nodiscard]] bool is_object() const;
+
+        [[nodiscard]] JsonString string() const;
+        [[nodiscard]] JsonBoolean boolean() const;
+        [[nodiscard]] JsonNumber number() const;
+        [[nodiscard]] JsonArray array() const;
+        [[nodiscard]] JsonObject object() const;
+    };
 
     template<typename T>
     void to_json(JsonContainer& json, T const& data) {

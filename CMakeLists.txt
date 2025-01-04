@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 3.30)
-project(JsonParser)
+project(JsonParser LANGUAGES CXX)
 
-set(CMAKE_MAJOR_VERSION 0)
-set(CMAKE_MINOR_VERSION 1)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CSS_STANDARD_REQUIRED ON)
+set(JSON_VERSION_MAJOR 0)
+set(JSON_VERSION_MINOR 1)
+set(JSON_VERSION_PATCH 0)
+set(JSON_VERSION ${JSON_VERSION_MAJOR}.${JSON_VERSION_MINOR}.${JSON_VERSION_PATCH})
 
 include(${PROJECT_SOURCE_DIR}/project_options.cmake)
 include(${PROJECT_SOURCE_DIR}/dependencies.cmake)

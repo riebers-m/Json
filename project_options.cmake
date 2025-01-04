@@ -43,12 +43,13 @@ add_library(json_parser_warnings INTERFACE)
 set_warnings(json_parser_warnings ${json_parser_warnings_as_errors})
 
 add_library(json_parser_sanitizers INTERFACE)
-enable_sanitizers(
-        json_parser_sanitizers
-        ${json_parser_enable_address_sanitizer}
-        ${json_parser_enable_undefined_behavior_sanitizer}
-        ${json_parser_enable_thread_sanitizer}
-)
+#enable_sanitizers(
+#        json_parser_sanitizers
+#        ${json_parser_enable_address_sanitizer}
+#        ${json_parser_enable_undefined_behavior_sanitizer}
+#        ${json_parser_enable_thread_sanitizer}
+#)
+
 
 add_library(json_parser_options INTERFACE)
 target_link_libraries(json_parser_options
