@@ -3,21 +3,19 @@
 //
 
 #pragma once
+#include <format>
 #include <memory>
 #include <string>
+#include <tl/expected.hpp>
 #include <utility>
 #include <variant>
 #include <vector>
-#include <format>
-#include <tl/expected.hpp>
 
 namespace json {
     struct JsonString {
-        explicit JsonString(std::string str) : value(std::move(str)) {
-        };
+        explicit JsonString(std::string str) : value(std::move(str)) {};
 
-        explicit JsonString(const char *value) : value(value) {
-        };
+        explicit JsonString(const char *value) : value(value) {};
         std::string value;
 
         [[nodiscard]] bool operator==(const JsonString &) const = default;
@@ -35,8 +33,7 @@ namespace json {
         [[nodiscard]] bool operator==(JsonBoolean const &rhs) const = default;
     };
 
-    struct JsonNull {
-    };
+    struct JsonNull {};
 
     class JsonContainer;
 
@@ -47,13 +44,13 @@ namespace json {
 
         [[nodiscard]] bool operator==(const JsonArray &rhs) const;
 
-        std::vector<std::shared_ptr<JsonContainer> > values;
+        std::vector<std::shared_ptr<JsonContainer>> values;
     };
 
     struct JsonObject {
-        JsonObject(std::initializer_list<std::pair<JsonString, JsonContainer> > init);
+        JsonObject(std::initializer_list<std::pair<JsonString, JsonContainer>> init);
 
-        std::vector<std::pair<JsonString, std::shared_ptr<JsonContainer> > > values;
+        std::vector<std::pair<JsonString, std::shared_ptr<JsonContainer>>> values;
 
         [[nodiscard]] bool operator==(const JsonObject &rhs) const;
     };
@@ -65,64 +62,47 @@ namespace json {
 
     public:
         template<typename T>
-        explicit JsonContainer(T const &data): JsonContainer() {
+        explicit JsonContainer(T const &data) : JsonContainer() {
             to_json(*this, data);
         }
 
-        JsonContainer() : m_data(JsonNull{}) {
-        }
+        JsonContainer() : m_data(JsonNull{}) {}
 
-        explicit JsonContainer(int data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {
-        }
+        explicit JsonContainer(int data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {}
 
-        explicit JsonContainer(float data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {
-        }
+        explicit JsonContainer(float data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {}
 
-        explicit JsonContainer(double data) : m_data(JsonVariant{JsonNumber{data}}) {
-        }
+        explicit JsonContainer(double data) : m_data(JsonVariant{JsonNumber{data}}) {}
 
-        explicit JsonContainer(unsigned int data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {
-        }
+        explicit JsonContainer(unsigned int data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {}
 
-        explicit JsonContainer(std::size_t data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {
-        }
+        explicit JsonContainer(std::size_t data) : m_data(JsonVariant{JsonNumber{static_cast<double>(data)}}) {}
 
-        explicit JsonContainer(std::string data) : m_data(JsonVariant{JsonString{std::move(data)}}) {
-        }
+        explicit JsonContainer(std::string data) : m_data(JsonVariant{JsonString{std::move(data)}}) {}
 
-        explicit JsonContainer(const char *data) : m_data(JsonVariant{JsonString{data}}) {
-        }
+        explicit JsonContainer(const char *data) : m_data(JsonVariant{JsonString{data}}) {}
 
-        explicit JsonContainer(bool data) : m_data(JsonVariant{JsonBoolean{data}}) {
-        }
+        explicit JsonContainer(bool data) : m_data(JsonVariant{JsonBoolean{data}}) {}
 
-        explicit JsonContainer(JsonVariant data) : m_data(std::move(data)) {
-        }
+        explicit JsonContainer(JsonVariant data) : m_data(std::move(data)) {}
 
-        explicit JsonContainer(nullptr_t) : m_data(JsonNull{}) {
-        }
+        explicit JsonContainer(nullptr_t) : m_data(JsonNull{}) {}
 
-        explicit JsonContainer(JsonArray data) : m_data(std::move(data)) {
-        }
+        explicit JsonContainer(JsonArray data) : m_data(std::move(data)) {}
 
-        explicit JsonContainer(JsonObject data) : m_data(std::move(data)) {
-        }
+        explicit JsonContainer(JsonObject data) : m_data(std::move(data)) {}
 
-        JsonContainer(std::initializer_list<std::pair<JsonString, JsonContainer> > init) : m_data(JsonObject{init}) {
-        }
+        JsonContainer(std::initializer_list<std::pair<JsonString, JsonContainer>> init) :
+            m_data(JsonObject{init}) {}
 
 
-        explicit JsonContainer(JsonString data) : m_data(std::move(data)) {
-        }
+        explicit JsonContainer(JsonString data) : m_data(std::move(data)) {}
 
-        explicit JsonContainer(JsonNumber data) : m_data(data) {
-        }
+        explicit JsonContainer(JsonNumber data) : m_data(data) {}
 
-        explicit JsonContainer(JsonBoolean data) : m_data(data) {
-        }
+        explicit JsonContainer(JsonBoolean data) : m_data(data) {}
 
-        explicit JsonContainer(JsonNull data) : m_data(data) {
-        }
+        explicit JsonContainer(JsonNull data) : m_data(data) {}
 
         [[nodiscard]] bool is_string() const;
 
@@ -174,5 +154,4 @@ namespace json {
         }
         json = JsonContainer{result};
     }
-}
-
+} // namespace json
