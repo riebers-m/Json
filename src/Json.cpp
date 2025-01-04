@@ -3,47 +3,68 @@
 //
 
 #include "Json.hpp"
+#include <algorithm>
+
+json::JsonArray::JsonArray(std::initializer_list<JsonContainer> init) {
+    for (const auto &it: init) {
+        values.emplace_back(std::make_shared<JsonContainer>(it));
+    }
+}
+
+bool json::JsonArray::operator==(const JsonArray &rhs) const {
+    return std::ranges::equal(values, rhs.values);
+}
+
+json::JsonObject::JsonObject(std::initializer_list<std::pair<JsonString, JsonContainer> > init) {
+    for (const auto &it: init) {
+        values.emplace_back(it.first, std::make_shared<JsonContainer>(it.second));
+    }
+}
+
+bool json::JsonObject::operator==(const JsonObject &rhs) const {
+    return std::ranges::equal(values, rhs.values);
+}
 
 bool json::JsonContainer::is_string() const {
-    return std::holds_alternative<JsonString>(m_data);
+    return is<JsonString>();
 }
 
 bool json::JsonContainer::is_number() const {
-    return std::holds_alternative<JsonNumber>(m_data);
+    return is<JsonNumber>();
 }
 
 bool json::JsonContainer::is_boolean() const {
-    return std::holds_alternative<JsonBoolean>(m_data);
+    return is<JsonBoolean>();
 }
 
 bool json::JsonContainer::is_null() const {
-    return std::holds_alternative<JsonNull>(m_data);
+    return is<JsonNull>();
 }
 
 bool json::JsonContainer::is_array() const {
-    return std::holds_alternative<JsonArray>(m_data);
+    return is<JsonArray>();
 }
 
 bool json::JsonContainer::is_object() const {
-    return std::holds_alternative<JsonObject>(m_data);
+    return is<JsonObject>();
 }
 
-json::JsonString json::JsonContainer::string() const {
-    return std::get<JsonString>(m_data);
+tl::expected<std::string, std::string> json::JsonContainer::string() const {
+    return retrieve_as<JsonString>().map([](JsonString &&json_string) { return json_string.value; });
 }
 
-json::JsonBoolean json::JsonContainer::boolean() const {
-    return std::get<JsonBoolean>(m_data);
+tl::expected<bool, std::string> json::JsonContainer::boolean() const {
+    return retrieve_as<JsonBoolean>().map([](JsonBoolean &&json_boolean) { return json_boolean.value; });
 }
 
-json::JsonNumber json::JsonContainer::number() const {
-    return std::get<JsonNumber>(m_data);
+tl::expected<double, std::string> json::JsonContainer::number() const {
+    return retrieve_as<JsonNumber>().map([](JsonNumber &&json_number) { return json_number.value; });
 }
 
-json::JsonArray json::JsonContainer::array() const {
-    return std::get<JsonArray>(m_data);
+tl::expected<json::JsonArray, std::string> json::JsonContainer::array() const {
+    return retrieve_as<JsonArray>();
 }
 
-json::JsonObject json::JsonContainer::object() const {
-    return std::get<JsonObject>(m_data);
+tl::expected<json::JsonObject, std::string> json::JsonContainer::object() const {
+    return retrieve_as<JsonObject>();
 }

@@ -3,7 +3,7 @@ add_library(JsonParser STATIC
         Json.cpp
         Json.hpp)
 
-target_link_libraries(JsonParser PRIVATE tl::expected json_parser_options)
+target_link_libraries(JsonParser PUBLIC tl::expected json_parser_options)
 target_include_directories(JsonParser PUBLIC
         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
         $<INSTALL_INTERFACE:include}>
