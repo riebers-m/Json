@@ -52,10 +52,7 @@ TEST_CASE("JsonContainer: Array Construction and Retrieval") {
 }
 
 TEST_CASE("JsonContainer: Object Construction and Retrieval") {
-    JsonObject object = {
-        {JsonString{"key1"}, JsonContainer(42)},
-        {JsonString{"key2"}, JsonContainer("value")}
-    };
+    JsonObject object = {{JsonString{"key1"}, JsonContainer(42)}, {JsonString{"key2"}, JsonContainer("value")}};
     JsonContainer json(object);
 
     REQUIRE(json.is_object());
@@ -83,28 +80,19 @@ TEST_CASE("JsonContainer: Null Construction and Type Check") {
     REQUIRE(json.is_null());
 }
 
-// TEST_CASE("JsonContainer: Custom JsonVariant Construction") {
-//     JsonContainer::JsonVariant variant = JsonString{"Custom Variant"};
-//     JsonContainer json(variant);
 //
-//     REQUIRE(json.is_string());
-//
-//     auto result = json.string();
-//     REQUIRE(result.has_value());
-//     REQUIRE(result.value() == "Custom Variant");
-// }
-//
-// TEST_CASE("JsonContainer: Initializer List Construction") {
-//     JsonContainer json({
-//         {"key1", JsonContainer(123)},
-//         {"key2", JsonContainer("value")}
-//     });
-//
-//     REQUIRE(json.is_object());
-//
-//     auto object_result = json.object();
-//     REQUIRE(object_result.has_value());
-//     REQUIRE(object_result->size() == 2);
-//     REQUIRE(object_result->at("key1").number().value() == 123.0);
-//     REQUIRE(object_result->at("key2").string().value() == "value");
-// }
+TEST_CASE("JsonContainer: Initializer List Construction") {
+    JsonContainer json({{JsonString{"key1"}, JsonContainer(123)}, {JsonString{"key2"}, JsonContainer("value")}});
+
+    REQUIRE(json.is_object());
+
+    auto object_result = json.object();
+    REQUIRE(object_result.has_value());
+    for (auto const &[key, value]: object_result.value().values) {
+        if (value->is_number()) {
+            REQUIRE(value->number() == 123.0);
+        } else if (value->is_string()) {
+            REQUIRE(value->string() == "value");
+        }
+    }
+}

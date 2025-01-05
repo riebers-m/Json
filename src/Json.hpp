@@ -19,6 +19,7 @@ namespace json {
         std::string value;
 
         [[nodiscard]] bool operator==(const JsonString &) const = default;
+        [[nodiscard]] bool operator==(const std::string &) const;
     };
 
     struct JsonNumber {
