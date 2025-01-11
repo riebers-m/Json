@@ -15,3 +15,5 @@ set_target_properties(JsonParser PROPERTIES
 )
 
 add_library(JsonParser::JsonParser ALIAS JsonParser)
+
+add_subdirectory(examples)

@@ -1,0 +1,10 @@
+add_executable(reflection reflection.cpp
+        TypeInfo.hpp
+        TypeId.hpp
+        types.cpp
+        VariableId.hpp
+        TypeHash.hpp
+        MemberId.hpp)
+set_target_properties(reflection PROPERTIES
+        CXX_STANDARD 20
+)
