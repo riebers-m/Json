@@ -4,8 +4,8 @@
 
 #pragma once
 #include <bitset>
+#include <functional>
 #include <string_view>
-#include "TypeHash.hpp"
 
 enum TypeFlags {
     TypeFlags_IsFundamental,
@@ -22,6 +22,9 @@ struct TypeInfo final {
     std::uint32_t alignment;
 
     std::bitset<TypeFlags_SIZE> flags{};
+
+    std::function<void(std::string &, const void *)> serializer{};
+    std::function<void(std::string &, void *)> deserializer{};
 
     template<typename T>
     static constexpr TypeInfo create();

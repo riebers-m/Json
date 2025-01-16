@@ -4,7 +4,9 @@ add_executable(reflection reflection.cpp
         types.cpp
         VariableId.hpp
         TypeHash.hpp
-        MemberId.hpp)
+        MemberId.hpp
+        SerializerConcept.hpp
+        Serializer.hpp)
 set_target_properties(reflection PROPERTIES
         CXX_STANDARD 20
 )

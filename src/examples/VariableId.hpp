@@ -1,13 +1,14 @@
 //
 // Created by Riebers on 11.01.2025.
 //
-#include <cstdint>
-#include <string>
-
-#include "TypeId.hpp"
-
 #pragma once
 
+#include <cstdint>
+#include <string>
+#include "TypeHash.hpp"
+#include "TypeId.hpp"
+
+// Holds information about type of variable
 class VariableId {
 private:
     static constexpr std::uint32_t const_flag = 1 << 0;
@@ -80,18 +81,6 @@ constexpr std::uint32_t count_pointers(std::uint32_t counter = 0) {
     }
 }
 
-template<typename T>
-struct remove_all_pointers {
-    using Type = T;
-};
-
-template<typename T>
-struct remove_all_pointers<T *> {
-    using Type = typename remove_all_pointers<T>::Type;
-};
-// std::remove_pointer only removes one * not if type has pointer to pointer **
-template<typename T>
-using remove_all_pointers_t = typename remove_all_pointers<T>::Type;
 
 template<typename T>
 inline constexpr VariableId VariableId::create() {
@@ -100,7 +89,7 @@ inline constexpr VariableId VariableId::create() {
     // if you have a reference, e.g. int& pr int&& you get int type
     // does nothing on pointer, e.g. int*
     using Type_RemovedRefs = std::remove_reference_t<Type_RemovedExtents>;
-    using Type_RemovedPointers = remove_all_pointers_t<Type_RemovedRefs>;
+    using Type_RemovedPointers = Reflection::remove_all_pointers_t<Type_RemovedRefs>;
 
     using StrippedType = std::remove_cvref_t<Type_RemovedPointers>;
     RegisterType<StrippedType> TypeRegister{};

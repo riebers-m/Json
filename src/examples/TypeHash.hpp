@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
-
 namespace Reflection {
     // https://stackoverflow.com/questions/35941045/can-i-obtain-c-type-names-in-a-constexpr-way
     // asnwer by einpoklum
@@ -50,6 +50,11 @@ namespace Reflection {
         constexpr auto prefix_length = detail::wrapped_type_name_prefix_length();
         constexpr auto suffix_length = detail::wrapped_type_name_suffix_length();
         constexpr auto type_name_length = wrapped_name.length() - prefix_length - suffix_length;
+        if constexpr (constexpr auto offset =
+                              wrapped_name.substr(prefix_length, type_name_length).find_first_of(" ");
+                      offset != std::string_view::npos) {
+            return wrapped_name.substr(prefix_length + offset + 1, type_name_length - offset - 1);
+        }
         return wrapped_name.substr(prefix_length, type_name_length);
     }
 
@@ -76,4 +81,17 @@ namespace Reflection {
     constexpr std::uint64_t TypeId() {
         return hash(TypeName<Type>());
     }
+
+    template<typename T>
+    struct remove_all_pointers {
+        using Type = T;
+    };
+
+    template<typename T>
+    struct remove_all_pointers<T *> {
+        using Type = typename remove_all_pointers<T>::Type;
+    };
+    // std::remove_pointer only removes one * not if type has pointer to pointer **
+    template<typename T>
+    using remove_all_pointers_t = typename remove_all_pointers<T>::Type;
 } // namespace Reflection

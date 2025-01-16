@@ -1,13 +1,14 @@
 //
 // Created by Riebers on 10.01.2025.
 //
+#pragma once
 #include <cstdint>
+#include <format>
 #include <optional>
 #include <unordered_map>
-
+#include "SerializerConcept.hpp"
+#include "TypeHash.hpp"
 #include "TypeInfo.hpp"
-
-#pragma once
 
 class TypeId {
 private:
@@ -57,7 +58,7 @@ public:
     static TypeContainer &get_container() { return types; }
 
     template<typename T>
-    static TypeId create();
+    static constexpr TypeId create();
 };
 
 constexpr bool operator==(const TypeId lhs, const TypeId rhs) { return lhs.get_id() == rhs.get_id(); }
@@ -102,11 +103,23 @@ constexpr TypeInfo TypeInfo::create() {
     info.flags[TypeFlags_IsFloatingPoint] = std::is_floating_point_v<T>;
     info.flags[TypeFlags_IsTriviallyCopyable] = std::is_trivially_copyable_v<T>;
 
+    if constexpr (Serializable<T>) {
+        info.serializer = [](std::string &stream, const void *data) {
+            json::detail::serialize(stream, *static_cast<T const *>(data));
+        };
+        // info.deserializer = [](std::string &stream, void *data) {
+        //     json::detail::deserialize(stream, *static_cast<T *>(data));
+        // };
+    }
+
     return info;
 }
 
 template<typename T>
-TypeId TypeId::create() {
+constexpr TypeId TypeId::create() {
+    using StrippedType = std::remove_cvref_t<
+            Reflection::remove_all_pointers_t<std::remove_reference_t<std::remove_all_extents_t<T>>>>;
+
     RegisterType<T> RegisterType{};
 
     return TypeId{Reflection::TypeId<T>()};

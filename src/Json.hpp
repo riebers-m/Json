@@ -5,11 +5,14 @@
 #pragma once
 #include <format>
 #include <memory>
+#include <optional>
 #include <string>
 #include <tl/expected.hpp>
 #include <utility>
 #include <variant>
 #include <vector>
+
+#include "examples/MemberId.hpp"
 
 namespace json {
     struct JsonString {
@@ -142,9 +145,20 @@ namespace json {
         }
     };
 
+    // template<typename T>
+    // void to_json(JsonContainer &json, const void *data, TypeId type_id) {
+    //     auto const &member_info = MemberId::get_member_infos(type_id);
+    //     JsonObject object{};
+    //     for (auto const &member: member_info) {
+    //         if (!member.variable_id.is_ref_or_pointer()) {
+    //             object.values.emplace_back({member.name, member.variable_id.get_type_id().})
+    //         }
+    //     }
+    // }
+
     template<typename T>
     void to_json(JsonContainer &json, T const &data) {
-        json = JsonContainer{data};
+        to_json(json, &data, TypeId::create<std::remove_cv_t<T>>());
     }
 
     template<typename T>
@@ -155,4 +169,11 @@ namespace json {
         }
         json = JsonContainer{result};
     }
+
+    template<typename T>
+    void to_json(JsonContainer &json, std::optional<T> const &data) {
+        json = data.has_value() ? JsonContainer{data.value()} : JsonContainer{std::monostate{}};
+    }
+
+    // void to_json(JsonContainer &json, MemberId::MemberInfo const &member_info) { json }
 } // namespace json

@@ -1,7 +1,8 @@
 message(STATUS "Building ${PROJECT_NAME}@${JSON_VERSION} (v${JSON_VERSION})")
 add_library(JsonParser STATIC
         Json.cpp
-        Json.hpp)
+        Json.hpp
+        Serialize.hpp)
 
 target_link_libraries(JsonParser PUBLIC tl::expected json_parser_options)
 target_include_directories(JsonParser PUBLIC

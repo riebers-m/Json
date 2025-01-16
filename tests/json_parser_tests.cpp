@@ -3,6 +3,7 @@
 //
 #include <catch2/catch_all.hpp>
 #include "Json.hpp"
+#include "Serialize.hpp"
 
 
 using namespace json;
@@ -95,4 +96,29 @@ TEST_CASE("JsonContainer: Initializer List Construction") {
             REQUIRE(value->string() == "value");
         }
     }
+}
+
+TEST_CASE("JsonContainer: Initialize std::vector") {
+    std::vector<int> vector = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    JsonContainer json{vector};
+
+    REQUIRE(json.is_array());
+    auto const result = json.array();
+    REQUIRE(result.has_value());
+    REQUIRE(result.value().values.size() == vector.size());
+}
+
+TEST_CASE("JsonContainer: Struct to JsonContainer") {
+    struct Test {
+        int x;
+        float y;
+        double z;
+    };
+    REGISTER_MEMBER(Test, x);
+    REGISTER_MEMBER(Test, y);
+    REGISTER_MEMBER(Test, z);
+
+    Test test{.x = 1, .y = 2.0, .z = 3.0};
+    JsonContainer const json{test};
+    REQUIRE(json.is_object());
 }
