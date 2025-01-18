@@ -4,19 +4,8 @@
 
 #pragma once
 #include <string>
-
+#include "Tokenizer.hpp"
 namespace json {
-
-    enum class Error {
-        ok,
-        missing_comma,
-        unquoted_keys,
-        braces_missmatch,
-        invalid_escape_sequence,
-        trailing_comma,
-        type_mismatch,
-
-    };
 
     namespace detail {
         void serialize(std::string &stream, int value);
@@ -31,7 +20,8 @@ namespace json {
         template<typename T>
         void serialize(std::string &stream, std::vector<T> const &value);
 
-        Error deserialize(std::string &stream, int value);
+        JsonError deserialize(Token const &, int &value);
+        JsonError deserialize(Token const &, std::string &value);
     } // namespace detail
 
 
@@ -40,9 +30,9 @@ namespace json {
 // Concepts
 
 template<typename T>
-concept InSerializable = requires(std::string &stream, T val) { json::detail::serialize(stream, val); };
+concept OutSerializable = requires(std::string &stream, T val) { json::detail::serialize(stream, val); };
 
 template<typename T>
-concept OutSerializable = requires(std::string &stream, T val) { json::detail::deserialize(stream, val); };
+concept InSerializable = requires(json::Token const &token, T val) { json::detail::deserialize(token, val); };
 template<typename T>
-concept Serializable = InSerializable<T>; // && OutSerializable<T>;
+concept Serializable = InSerializable<T> && OutSerializable<T>;

@@ -6,6 +6,7 @@
 #include <bitset>
 #include <functional>
 #include <string_view>
+#include "Error.hpp"
 
 enum TypeFlags {
     TypeFlags_IsFundamental,
@@ -24,7 +25,7 @@ struct TypeInfo final {
     std::bitset<TypeFlags_SIZE> flags{};
 
     std::function<void(std::string &, const void *)> serializer{};
-    std::function<void(std::string &, void *)> deserializer{};
+    std::function<json::JsonError(json::Token const &, void *)> deserializer{};
 
     template<typename T>
     static constexpr TypeInfo create();

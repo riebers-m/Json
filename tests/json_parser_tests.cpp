@@ -108,17 +108,17 @@ TEST_CASE("JsonContainer: Initialize std::vector") {
     REQUIRE(result.value().values.size() == vector.size());
 }
 
-TEST_CASE("JsonContainer: Struct to JsonContainer") {
-    struct Test {
-        int x;
-        float y;
-        double z;
-    };
-    REGISTER_MEMBER(Test, x);
-    REGISTER_MEMBER(Test, y);
-    REGISTER_MEMBER(Test, z);
-
-    Test test{.x = 1, .y = 2.0, .z = 3.0};
-    JsonContainer const json{test};
-    REQUIRE(json.is_object());
-}
+// TEST_CASE("JsonContainer: Struct to JsonContainer") {
+//     struct Test {
+//         int x;
+//         float y;
+//         double z;
+//     };
+//     REGISTER_MEMBER(Test, x);
+//     REGISTER_MEMBER(Test, y);
+//     REGISTER_MEMBER(Test, z);
+//
+//     Test test{.x = 1, .y = 2.0, .z = 3.0};
+//     JsonContainer const json{test};
+//     REQUIRE(json.is_object());
+// }

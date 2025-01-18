@@ -55,58 +55,70 @@
 //     REGISTER_MEMBER(GameObject, Transform);
 // };
 //
-void PrintTypeInfo(TypeId id) {
-    std::cout << "Type: " << id.get_name().value_or("<unknown>") << '\n';
-    std::cout << "Size: " << id.get_size().value_or(0) << '\n';
-    std::cout << "Alignment: " << id.get_alignment().value_or(0) << '\n';
+// void PrintTypeInfo(TypeId id) {
+//     std::cout << "Type: " << id.get_name().value_or("<unknown>") << '\n';
+//     std::cout << "Size: " << id.get_size().value_or(0) << '\n';
+//     std::cout << "Alignment: " << id.get_alignment().value_or(0) << '\n';
+//
+//     std::cout << "Member variables:\n";
+//     for (auto &info: MemberId::get_member_infos(id)) {
+//         std::cout << '\t' << get_variable_name(info.variable_id) << " [" << info.name << "] At Offset ["
+//                   << info.offset << "]\n";
+//     }
+//     std::cout << "\n\n";
+// }
+//
+// struct Vector {
+//     int x{};
+//     int y{};
+//     int z{};
+// };
+//
+// REGISTER_MEMBER(Vector, x);
+// REGISTER_MEMBER(Vector, y);
+// REGISTER_MEMBER(Vector, z);
+//
+// struct Test {
+//     Vector vec{};
+//     int y{};
+//     bool z{false};
+//     float a{1.23};
+//     double b{23.23};
+//     std::string str{"Hello, World!"};
+//     std::optional<int> opt;
+//     std::vector<float> v{1.23};
+//     std::vector<std::optional<std::string>> v2{};
+// };
+// REGISTER_MEMBER(Test, vec);
+// REGISTER_MEMBER(Test, y);
+// REGISTER_MEMBER(Test, z);
+// REGISTER_MEMBER(Test, a);
+// REGISTER_MEMBER(Test, b);
+// REGISTER_MEMBER(Test, str);
+// REGISTER_MEMBER(Test, opt);
+// REGISTER_MEMBER(Test, v);
+// REGISTER_MEMBER(Test, v2);
 
-    std::cout << "Member variables:\n";
-    for (auto &info: MemberId::get_member_infos(id)) {
-        std::cout << '\t' << get_variable_name(info.variable_id) << " [" << info.name << "] At Offset ["
-                  << info.offset << "]\n";
-    }
-    std::cout << "\n\n";
-}
-
-struct Vector {
+struct DeTest {
     int x{};
-    int y{};
-    int z{};
 };
 
-REGISTER_MEMBER(Vector, x);
-REGISTER_MEMBER(Vector, y);
-REGISTER_MEMBER(Vector, z);
-
-struct Test {
-    Vector vec{};
-    int y{};
-    bool z{false};
-    float a{1.23};
-    double b{23.23};
-    std::string str{"Hello, World!"};
-    std::optional<int> opt;
-    std::vector<float> v{1.23};
-    std::vector<std::optional<std::string>> v2{};
-};
-REGISTER_MEMBER(Test, vec);
-REGISTER_MEMBER(Test, y);
-REGISTER_MEMBER(Test, z);
-REGISTER_MEMBER(Test, a);
-REGISTER_MEMBER(Test, b);
-REGISTER_MEMBER(Test, str);
-REGISTER_MEMBER(Test, opt);
-REGISTER_MEMBER(Test, v);
-REGISTER_MEMBER(Test, v2);
+REGISTER_MEMBER(DeTest, x);
 
 int main() {
-    Test test{.vec = {}, .y = 5, .opt = 35, .v = {1.2, 2.3, 3.4, 4.5}, .v2 = {"a", "b", std::nullopt}};
-    // // int x = 5;
-    auto const stream = json::serialize_type(test);
-    //
-    // PrintTypeInfo(TypeId::create<Test>());
-    std::cout << stream << '\n';
-    // PrintTypeInfo(TypeId::create<Quaternion>());
-    // PrintTypeInfo(TypeId::create<Transform>());
-    // PrintTypeInfo(TypeId::create<GameObject>());
+    // Test test{.vec = {}, .y = 5, .opt = 35, .v = {1.2, 2.3, 3.4, 4.5}, .v2 = {"a", "b", std::nullopt}};
+    // auto const stream = json::serialize_type(test);
+    // std::cout << stream << '\n';
+
+    DeTest detest;
+
+    std::string json = R"({"x":5000})";
+    auto const error = json::deserialize_type(json, detest);
+    if (error.error != json::Error::ok) {
+        std::cout << "Could not parse json!";
+        return -1;
+    }
+
+    std::cout << detest.x << '\n';
+    return 0;
 }
