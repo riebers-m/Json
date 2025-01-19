@@ -18,10 +18,17 @@ namespace json {
         void serialize(std::string &stream, std::optional<T> const &value);
 
         template<typename T>
-        void serialize(std::string &stream, std::vector<T> const &value);
+        void serialize(std::string &stream, std::vector<T> const value);
 
-        JsonError deserialize(Token const &, int &value);
-        JsonError deserialize(Token const &, std::string &value);
+        JsonError deserialize(Tokens &, int &value);
+        JsonError deserialize(Tokens &, float &value);
+        JsonError deserialize(Tokens &, double &value);
+        JsonError deserialize(Tokens &, std::string &value);
+        template<typename T>
+        JsonError deserialize(Tokens &, std::vector<T> &value);
+
+        template<typename T>
+        JsonError deserialize(Tokens &, std::optional<T> &value);
     } // namespace detail
 
 
@@ -33,6 +40,6 @@ template<typename T>
 concept OutSerializable = requires(std::string &stream, T val) { json::detail::serialize(stream, val); };
 
 template<typename T>
-concept InSerializable = requires(json::Token const &token, T val) { json::detail::deserialize(token, val); };
+concept InSerializable = requires(json::Tokens &tokens, T val) { json::detail::deserialize(tokens, val); };
 template<typename T>
 concept Serializable = InSerializable<T> && OutSerializable<T>;

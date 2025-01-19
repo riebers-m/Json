@@ -107,8 +107,8 @@ constexpr TypeInfo TypeInfo::create() {
         info.serializer = [](std::string &stream, const void *data) {
             json::detail::serialize(stream, *static_cast<T const *>(data));
         };
-        info.deserializer = [](json::Token const &token, void *data) -> json::JsonError {
-            return json::detail::deserialize(token, *static_cast<T *>(data));
+        info.deserializer = [](json::Tokens &tokens, void *data) -> json::JsonError {
+            return json::detail::deserialize(tokens, *static_cast<T *>(data));
         };
     }
 

@@ -99,11 +99,42 @@
 // REGISTER_MEMBER(Test, v);
 // REGISTER_MEMBER(Test, v2);
 
+struct Bar {
+    int zip{};
+    std::string town{};
+    std::string street{};
+    std::vector<std::string> list{};
+};
+REGISTER_MEMBER(Bar, zip);
+REGISTER_MEMBER(Bar, town);
+REGISTER_MEMBER(Bar, street);
+REGISTER_MEMBER(Bar, list);
+
+struct Foo {
+    int age{};
+    std::string name{};
+    Bar bar;
+};
+REGISTER_MEMBER(Foo, age);
+REGISTER_MEMBER(Foo, name);
+REGISTER_MEMBER(Foo, bar);
+
+
 struct DeTest {
     int x{};
+    float y{};
+    double z{};
+    std::optional<int> a{};
+    Foo foo;
+    std::vector<Bar> bars;
 };
 
 REGISTER_MEMBER(DeTest, x);
+REGISTER_MEMBER(DeTest, y);
+REGISTER_MEMBER(DeTest, z);
+REGISTER_MEMBER(DeTest, a);
+REGISTER_MEMBER(DeTest, foo);
+REGISTER_MEMBER(DeTest, bars);
 
 int main() {
     // Test test{.vec = {}, .y = 5, .opt = 35, .v = {1.2, 2.3, 3.4, 4.5}, .v2 = {"a", "b", std::nullopt}};
@@ -112,13 +143,22 @@ int main() {
 
     DeTest detest;
 
-    std::string json = R"({"x":5000})";
+    std::string json =
+            R"({"x":5000,"y":1.23, "z":12.3334, "a":333, "foo":{"age":20, "name":"Obi Wan", "bar":{"zip":27321, "street":"Street 12", "town": "Downtown"}},
+                "bars":[
+                {"zip":1,"town":"ATown","street":"A street", "list":["apple", "banana"]},
+                {"zip":2,"town":"BTown","street":"B street", "list":["mango", "kiwi"]},
+                {"zip":3,"town":"CTown","street":"C street", "list":["strawberry", "ananas"]}]})";
+
     auto const error = json::deserialize_type(json, detest);
     if (error.error != json::Error::ok) {
         std::cout << "Could not parse json!";
         return -1;
     }
+    std::string json_dump = json::serialize_type(detest);
 
-    std::cout << detest.x << '\n';
+    std::cout << json_dump;
+
+
     return 0;
 }

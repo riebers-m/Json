@@ -27,24 +27,23 @@ namespace json {
             }
         }
 
-        template<typename T>
-        void serialize(std::string &stream, std::vector<T> const &value) {
-            stream += "[";
-            int items{};
-            for (auto const &item: value) {
-                if (items++ > 0) {
-                    stream += ", ";
-                }
-                serialize(stream, item);
-            }
-            stream += "]";
-        }
 
         inline void *offset_void_pointer(void *data, std::size_t offset) {
             return static_cast<uint8_t *>(data) + offset;
         }
         inline void const *offset_void_pointer(const void *data, std::size_t offset) {
             return static_cast<const uint8_t *>(data) + offset;
+        }
+
+        inline Token next_token(Tokens &tokens) {
+            auto const next_token = tokens.back();
+            tokens.pop_back();
+            return next_token;
+        }
+
+        inline void skip_seperator_and_value(Tokens &tokens) {
+            tokens.pop_back();
+            tokens.pop_back();
         }
 
         inline void serialize_type(std::string &stream, const void *data, TypeId type_id) {
@@ -72,15 +71,55 @@ namespace json {
             }
         }
 
-        inline JsonError deserialize(Token const &token, int &value) {
+        template<typename T>
+        void serialize(std::string &stream, std::vector<T> const value) {
+            stream += "[";
+            int items{};
+            for (auto const &item: value) {
+                if (items++ > 0) {
+                    stream += ", ";
+                }
+                serialize_type(stream, &item, TypeId::create<T>());
+            }
+            stream += "]";
+        }
+
+        inline JsonError deserialize(Tokens &tokens, int &value) {
+            auto const token = next_token(tokens);
             if (token.type != json::TokenType::Number) {
                 return JsonError{Error::type_mismatch, 0};
             }
             value = std::stoi(token.value);
             return JsonError{Error::ok, 0};
         }
+        inline JsonError deserialize(Tokens &tokens, float &value) {
+            auto const token = next_token(tokens);
+            if (token.type != TokenType::Number) {
+                return JsonError{Error::type_mismatch, 0};
+            }
+            value = std::stof(token.value);
+            return JsonError{Error::ok, 0};
+        }
+        inline JsonError deserialize(Tokens &tokens, double &value) {
+            auto const token = next_token(tokens);
+            if (token.type != TokenType::Number) {
+                return JsonError{Error::type_mismatch, 0};
+            }
+            value = std::stod(token.value);
+            return JsonError{Error::ok, 0};
+        }
+        template<typename T>
+        JsonError deserialize(Tokens &tokens, std::optional<T> &value) {
+            T data{};
+            if (auto const result = deserialize(tokens, data); result.error != Error::ok) {
+                return result;
+            }
+            value = data;
+            return JsonError{Error::ok, 0};
+        }
 
-        inline JsonError deserialize(Token const &token, std::string &value) {
+        inline JsonError deserialize(Tokens &tokens, std::string &value) {
+            auto const token = next_token(tokens);
             if (token.type != json::TokenType::String) {
                 return JsonError{Error::type_mismatch, 0};
             }
@@ -91,48 +130,65 @@ namespace json {
         inline JsonError deserialize_type(Tokens &tokens, void *data, TypeId type_id) {
             if (auto const &info = type_id.get_info(); info) {
                 if (info.value().deserializer) {
-                    auto const token = tokens.back();
-                    tokens.pop_back();
-                    return info.value().deserializer(token, data);
-                } else {
-                    auto token = tokens.back();
-                    tokens.pop_back();
-                    if (token.type != json::TokenType::LeftBrace) {
-                        return JsonError{Error::braces_missmatch, 0};
-                    }
-                    auto &members = MemberId::get_member_infos(type_id);
-                    token = tokens.back();
-                    tokens.pop_back();
+                    return info.value().deserializer(tokens, data);
+                }
 
-                    while (token.type != json::TokenType::RightBrace) {
-                        std::string member_name;
-                        if (auto const result = deserialize(token, member_name); result.error != Error::ok) {
+                auto token = next_token(tokens);
+                if (token.type != TokenType::LeftBrace) {
+                    return JsonError{Error::braces_missmatch, 0};
+                }
+                auto &members = MemberId::get_member_infos(type_id);
+
+                while (token.type != TokenType::RightBrace) {
+                    std::string member_name;
+                    if (auto const result = deserialize(tokens, member_name); result.error != Error::ok) {
+                        return result;
+                    }
+                    auto const member = std::ranges::find(members, member_name, &MemberId::MemberInfo::name);
+                    if (member != members.end() && !member->variable_id.is_ref_or_pointer()) {
+                        token = next_token(tokens);
+
+                        if (token.type != json::TokenType::KeyValueSeparator) {
+                            return JsonError{Error::type_mismatch, 0};
+                        }
+
+                        if (auto const result = deserialize_type(tokens, offset_void_pointer(data, member->offset),
+                                                                 member->variable_id.get_type_id());
+                            result.error != Error::ok) {
                             return result;
                         }
-                        auto const member = std::ranges::find(members, member_name, &MemberId::MemberInfo::name);
-                        if (member != members.end() && !member->variable_id.is_ref_or_pointer()) {
-                            token = tokens.back();
-                            tokens.pop_back();
-
-                            if (token.type != json::TokenType::KeyValueSeparator) {
-                                return JsonError{Error::type_mismatch, 0};
-                            }
-
-                            if (auto const result =
-                                        deserialize_type(tokens, offset_void_pointer(data, member->offset),
-                                                         member->variable_id.get_type_id());
-                                result.error != Error::ok) {
-                                return result;
-                            }
-                        }
-                        token = tokens.back();
-                        tokens.pop_back();
+                    } else {
+                        skip_seperator_and_value(tokens);
                     }
+                    token = next_token(tokens);
                 }
                 return JsonError{Error::ok, 0};
             }
             return JsonError{Error::invalid_type, 0};
         }
+
+        template<typename T>
+        JsonError deserialize(Tokens &tokens, std::vector<T> &value) {
+            auto token = next_token(tokens);
+            if (token.type != TokenType::LeftBracket) {
+                return JsonError{Error::braces_missmatch, 0};
+            }
+            while (token.type != TokenType::RightBracket) {
+                T data{};
+                if (auto const result = detail::deserialize_type(tokens, &data, TypeId::create<T>());
+                    result.error == Error::ok) {
+                    value.emplace_back(data);
+                } else {
+                    return result;
+                }
+                token = next_token(tokens);
+                if (token.type != TokenType::Comma && token.type != TokenType::RightBracket) {
+                    return JsonError{Error::missing_comma, 0};
+                }
+            }
+            return JsonError{Error::ok, 0};
+        }
+
     } // namespace detail
 
     template<typename T>
@@ -153,5 +209,6 @@ namespace json {
             return result.error();
         }
     }
+
 
 } // namespace json
