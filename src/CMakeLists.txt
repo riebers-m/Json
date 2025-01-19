@@ -1,8 +1,15 @@
 message(STATUS "Building ${PROJECT_NAME}@${JSON_VERSION} (v${JSON_VERSION})")
 add_library(JsonParser STATIC
-        Json.cpp
-        Json.hpp
-        Serialize.hpp)
+        MemberId.hpp
+        Serializer.hpp
+        SerializerConcept.hpp
+        Tokenizer.hpp
+        Tokenizer.cpp
+        TypeHash.hpp
+        TypeId.hpp
+        TypeInfo.hpp
+        VariableId.hpp
+)
 
 target_link_libraries(JsonParser PUBLIC tl::expected json_parser_options)
 target_include_directories(JsonParser PUBLIC
@@ -16,5 +23,3 @@ set_target_properties(JsonParser PROPERTIES
 )
 
 add_library(JsonParser::JsonParser ALIAS JsonParser)
-
-add_subdirectory(examples)

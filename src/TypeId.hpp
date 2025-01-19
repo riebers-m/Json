@@ -3,7 +3,6 @@
 //
 #pragma once
 #include <cstdint>
-#include <format>
 #include <optional>
 #include <unordered_map>
 #include "SerializerConcept.hpp"

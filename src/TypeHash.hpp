@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <algorithm>
 #include <cstdint>
 namespace Reflection {
     // https://stackoverflow.com/questions/35941045/can-i-obtain-c-type-names-in-a-constexpr-way
@@ -44,6 +43,7 @@ namespace Reflection {
         }
     } // namespace detail
 
+#pragma warning(disable : 4702)
     template<typename T>
     constexpr std::string_view TypeName() {
         constexpr auto wrapped_name = detail::wrapped_type_name<T>();
