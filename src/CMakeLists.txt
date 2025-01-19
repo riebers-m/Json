@@ -1,7 +1,7 @@
 message(STATUS "Building ${PROJECT_NAME}@${JSON_VERSION} (v${JSON_VERSION})")
 add_library(JsonParser STATIC
         MemberId.hpp
-        Serializer.hpp
+        Json.hpp
         SerializerConcept.hpp
         Tokenizer.hpp
         Tokenizer.cpp
