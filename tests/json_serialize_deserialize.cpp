@@ -4,7 +4,7 @@
 #include <catch2/catch_all.hpp>
 #include <optional>
 #include <vector>
-#include "Json.hpp"
+#include "json/Json.hpp"
 
 struct Bar {
     int zip{};

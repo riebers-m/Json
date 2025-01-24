@@ -3,7 +3,7 @@
 //
 #include <catch2/catch_all.hpp>
 
-#include "Tokenizer.hpp"
+#include "json/Tokenizer.hpp"
 
 TEST_CASE("JsonTokenizer: String") {
     json::detail::Tokenizer tokenizer;
