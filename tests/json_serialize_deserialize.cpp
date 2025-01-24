@@ -58,3 +58,30 @@ TEST_CASE("Deserialize simple") {
     REQUIRE(foo.bar.list[0] == "apple");
     REQUIRE(foo.bar.list[1] == "banana");
 }
+
+struct Config {
+    bool boolean{};
+    std::optional<bool> opt{};
+};
+
+REGISTER_MEMBER(Config, boolean);
+REGISTER_MEMBER(Config, opt);
+
+TEST_CASE("Deserialize bool") {
+    SECTION("All true") {
+        Config config;
+        json::deserialize_type(R"({"boolean":true, "opt":true})", config);
+        REQUIRE(config.boolean == true);
+        REQUIRE(config.opt.value() == true);
+    }
+
+    SECTION("Null value") {
+        Config config{true, true};
+        REQUIRE(config.boolean);
+        REQUIRE(config.opt.value());
+
+        json::deserialize_type(R"({"boolean":false, "opt":null})", config);
+        REQUIRE(config.boolean == false);
+        REQUIRE(!config.opt.has_value());
+    }
+}

@@ -91,12 +91,12 @@ namespace json {
                 return JsonError{Error::type_mismatch, 0};
             }
             value = std::stoi(token.value);
-            return JsonError{Error::ok, 0};
+            return JsonError{Error::ok, tokens.size()};
         }
         inline JsonError deserialize(Tokens &tokens, float &value) {
             auto const token = next_token(tokens);
             if (token.type != TokenType::Number) {
-                return JsonError{Error::type_mismatch, 0};
+                return JsonError{Error::type_mismatch, tokens.size()};
             }
             value = std::stof(token.value);
             return JsonError{Error::ok, 0};
@@ -104,14 +104,33 @@ namespace json {
         inline JsonError deserialize(Tokens &tokens, double &value) {
             auto const token = next_token(tokens);
             if (token.type != TokenType::Number) {
-                return JsonError{Error::type_mismatch, 0};
+                return JsonError{Error::type_mismatch, tokens.size()};
             }
             value = std::stod(token.value);
             return JsonError{Error::ok, 0};
         }
+
+        inline JsonError deserialize(Tokens &tokens, bool &value) {
+            auto const token = next_token(tokens);
+            if (token.type != TokenType::Boolean) {
+                return JsonError{Error::type_mismatch, tokens.size()};
+            }
+            if (token.value.find("true") != std::string::npos) {
+                value = true;
+            } else {
+                value = false;
+            }
+            return JsonError{Error::ok, 0};
+        }
+
         template<typename T>
         JsonError deserialize(Tokens &tokens, std::optional<T> &value) {
             T data{};
+
+            if (tokens.back().type == TokenType::Null) {
+                value = std::nullopt;
+                return JsonError{Error::ok, 0};
+            }
             if (auto const result = deserialize(tokens, data); result.error != Error::ok) {
                 return result;
             }

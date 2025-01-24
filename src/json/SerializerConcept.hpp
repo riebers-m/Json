@@ -24,6 +24,7 @@ namespace json {
         JsonError deserialize(Tokens &, float &value);
         JsonError deserialize(Tokens &, double &value);
         JsonError deserialize(Tokens &, std::string &value);
+        JsonError deserialize(Tokens &, bool &value);
         template<typename T>
         JsonError deserialize(Tokens &, std::vector<T> &value);
 
