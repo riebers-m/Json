@@ -18,6 +18,9 @@ namespace json {
         inline void serialize(std::string &stream, std::string const &value) {
             stream += std::format("\"{}\"", value);
         };
+        inline void serialize(std::string &stream, std::filesystem::path const &value) {
+            stream += value.string();
+        }
 
         template<typename T>
         void serialize(std::string &stream, std::optional<T> const &value) {
@@ -139,6 +142,15 @@ namespace json {
         }
 
         inline JsonError deserialize(Tokens &tokens, std::string &value) {
+            auto const token = next_token(tokens);
+            if (token.type != json::TokenType::String) {
+                return JsonError{Error::type_mismatch, 0};
+            }
+            value = token.value;
+            return JsonError{Error::ok, 0};
+        }
+
+        inline JsonError deserialize(Tokens &tokens, std::filesystem::path &value) {
             auto const token = next_token(tokens);
             if (token.type != json::TokenType::String) {
                 return JsonError{Error::type_mismatch, 0};

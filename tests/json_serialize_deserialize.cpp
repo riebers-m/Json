@@ -6,6 +6,12 @@
 #include <vector>
 #include "json/Json.hpp"
 
+struct File {
+    std::filesystem::path path;
+};
+
+REGISTER_MEMBER(File, path);
+
 struct Bar {
     int zip{};
     std::string town{};
@@ -83,5 +89,30 @@ TEST_CASE("Deserialize bool") {
         json::deserialize_type(R"({"boolean":false, "opt":null})", config);
         REQUIRE(config.boolean == false);
         REQUIRE(!config.opt.has_value());
+    }
+}
+
+TEST_CASE("Deserialize std::filesystem::path") {
+    File file;
+
+    SECTION("empty") {
+        json::deserialize_type(R"()", file);
+        REQUIRE(file.path.empty());
+    }
+    SECTION("empty path") {
+        json::deserialize_type(R"({"path":""})", file);
+        REQUIRE(file.path.empty());
+    }
+    SECTION("path absolute") {
+        json::deserialize_type(R"({"path":"/home/user/test"})", file);
+        REQUIRE(file.path == std::filesystem::path{"/home/user/test"});
+    }
+    SECTION("path relative") {
+        json::deserialize_type(R"({"path":"relative/user/test"})", file);
+        REQUIRE(file.path == std::filesystem::path{"relative/user/test"});
+    }
+    SECTION("path windows") {
+        json::deserialize_type(R"({"path":"relative\user\test"})", file);
+        REQUIRE(file.path.empty());
     }
 }

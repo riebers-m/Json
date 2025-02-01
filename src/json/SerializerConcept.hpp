@@ -13,6 +13,7 @@ namespace json {
         void serialize(std::string &stream, float value);
         void serialize(std::string &stream, double value);
         void serialize(std::string &stream, std::string const &value);
+        void serialize(std::string &stream, std::filesystem::path const &value);
 
         template<typename T>
         void serialize(std::string &stream, std::optional<T> const &value);
@@ -24,6 +25,7 @@ namespace json {
         JsonError deserialize(Tokens &, float &value);
         JsonError deserialize(Tokens &, double &value);
         JsonError deserialize(Tokens &, std::string &value);
+        JsonError deserialize(Tokens &, std::filesystem::path &value);
         JsonError deserialize(Tokens &, bool &value);
         template<typename T>
         JsonError deserialize(Tokens &, std::vector<T> &value);
