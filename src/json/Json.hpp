@@ -222,9 +222,11 @@ namespace json {
     JsonError deserialize_type(std::string const &stream, T &value) {
         json::detail::Tokenizer tokenizer;
         if (auto const result = tokenizer.tokenize(stream); result.has_value()) {
-            auto tokens = result.value();
-            std::ranges::reverse(tokens.begin(), tokens.end());
-            return detail::deserialize_type(tokens, &value, TypeId::create<std::remove_cvref_t<T>>());
+            if (auto tokens = result.value(); !tokens.empty()) {
+                std::ranges::reverse(tokens.begin(), tokens.end());
+                return detail::deserialize_type(tokens, &value, TypeId::create<std::remove_cvref_t<T>>());
+            }
+            return {Error::ok, 0};
         } else {
             return result.error();
         }
