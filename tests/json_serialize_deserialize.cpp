@@ -12,6 +12,16 @@ struct File {
 
 REGISTER_MEMBER(File, path);
 
+struct Age {
+    std::size_t day;
+    std::size_t month;
+    std::size_t year;
+};
+
+REGISTER_MEMBER(Age, day);
+REGISTER_MEMBER(Age, month);
+REGISTER_MEMBER(Age, year);
+
 struct Bar {
     int zip{};
     std::string town{};
@@ -114,5 +124,28 @@ TEST_CASE("Deserialize std::filesystem::path") {
     SECTION("path windows") {
         json::deserialize_type(R"({"path":"relative\user\test"})", file);
         REQUIRE(file.path.empty());
+    }
+}
+
+TEST_CASE("Serialize/Deserialize std::size_t") {
+    Age age;
+
+    SECTION("simple") {
+        json::deserialize_type(R"({"day":12, "month":5, "year":1991})", age);
+        REQUIRE(age.day == 12);
+        REQUIRE(age.month == 5);
+        REQUIRE(age.year == 1991);
+    }
+    SECTION("pre zero") {
+        json::deserialize_type(R"({"day":03, "month":05, "year":1991})", age);
+        REQUIRE(age.day == 3);
+        REQUIRE(age.month == 5);
+        REQUIRE(age.year == 1991);
+    }
+    SECTION("minus") {
+        json::deserialize_type(R"({"day":-1, "month":05, "year":1991})", age);
+        REQUIRE(age.day == 1);
+        REQUIRE(age.month == 5);
+        REQUIRE(age.year == 1991);
     }
 }

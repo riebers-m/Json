@@ -15,6 +15,7 @@ namespace json {
         inline void serialize(std::string &stream, bool value) { stream += value ? "true" : "false"; }
         inline void serialize(std::string &stream, float value) { stream += std::to_string(value); };
         inline void serialize(std::string &stream, double value) { stream += std::to_string(value); };
+        inline void serialize(std::string &stream, std::size_t value) { stream += std::to_string(value); }
         inline void serialize(std::string &stream, std::string const &value) {
             stream += std::format("\"{}\"", value);
         };
@@ -110,6 +111,15 @@ namespace json {
                 return JsonError{Error::type_mismatch, tokens.size()};
             }
             value = std::stod(token.value);
+            return JsonError{Error::ok, 0};
+        }
+
+        inline JsonError deserialize(Tokens &tokens, std::size_t &value) {
+            auto const token = next_token(tokens);
+            if (token.type != TokenType::Number) {
+                return JsonError{Error::type_mismatch, tokens.size()};
+            }
+            value = std::stoul(token.value);
             return JsonError{Error::ok, 0};
         }
 
