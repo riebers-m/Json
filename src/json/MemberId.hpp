@@ -52,8 +52,9 @@ public:
     template<typename Class, typename Field>
     static MemberId RegisterField(std::string const &field_name, std::uint32_t field_offset);
 
-//    template<typename Field>
-//    static MemberId RegisterField(TypeId class_id, std::string const &field_name, std::uint32_t field_offset);
+    //    template<typename Field>
+    //    static MemberId RegisterField(TypeId class_id, std::string const &field_name, std::uint32_t
+    //    field_offset);
 
     static MemberId RegisterField(TypeId class_id, VariableId member_id, std::string const &field_name,
                                   std::uint32_t field_offset, std::uint32_t field_size,
@@ -73,8 +74,8 @@ struct RegisterMember final {
     }
 };
 
-#define REGISTER_MEMBER(TYPE, FIELD) \
-    inline RegisterType<TYPE> registerType_##TYPE_##FIELD;                                 \
+#define REGISTER_MEMBER(TYPE, FIELD)                                                                              \
+    inline RegisterType<TYPE> __TYPE##FIELD;                                                                      \
     inline static RegisterMember TYPE##FIELD{TypeId::create<TYPE>(),                                              \
                                              VariableId::create<decltype(TYPE::FIELD)>(),                         \
                                              #FIELD,                                                              \

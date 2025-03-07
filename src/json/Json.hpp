@@ -3,6 +3,8 @@
 //
 
 #pragma once
+#include <format>
+#include <algorithm>
 #include "MemberId.hpp"
 #include "SerializerConcept.hpp"
 #include "Tokenizer.hpp"

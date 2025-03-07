@@ -149,3 +149,16 @@ TEST_CASE("Serialize/Deserialize std::size_t") {
         REQUIRE(age.year == 1991);
     }
 }
+
+namespace test {
+    struct Namespace {
+        std::string name;
+    };
+    REGISTER_MEMBER(Namespace, name);
+} // namespace test
+
+TEST_CASE("Deserialize struct with namespace") {
+    test::Namespace testo;
+    json::deserialize_type(R"({"name":"test"})", testo);
+    REQUIRE(testo.name == "test");
+}
