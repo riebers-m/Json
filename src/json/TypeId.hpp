@@ -3,6 +3,7 @@
 //
 #pragma once
 #include <cstdint>
+#include <iostream>
 #include <optional>
 #include <unordered_map>
 #include "SerializerConcept.hpp"
@@ -74,7 +75,10 @@ private:
             TypeId::get_container().try_emplace(id.get_id(), info);
         }
     };
-    inline static RegisterOnce registerOnce{};
+public:
+    RegisterType() {
+        static RegisterOnce registerOnce;
+    }
 };
 
 #define REGISTER_TYPE(TYPE) RegisterType<TYPE> RegisterType_##TYPE
@@ -86,8 +90,6 @@ struct std::hash<TypeId> {
 
 template<typename T>
 constexpr TypeInfo TypeInfo::create() {
-    RegisterType<T> RegisterType{};
-
     TypeInfo info{};
 
     info.name = Reflection::TypeName<T>();
@@ -118,8 +120,5 @@ template<typename T>
 constexpr TypeId TypeId::create() {
     using StrippedType = std::remove_cvref_t<
             Reflection::remove_all_pointers_t<std::remove_reference_t<std::remove_all_extents_t<T>>>>;
-
-    RegisterType<T> RegisterType{};
-
     return TypeId{Reflection::TypeId<T>()};
 }
