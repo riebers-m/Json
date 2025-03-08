@@ -75,7 +75,7 @@ struct RegisterMember final {
 };
 
 #define REGISTER_MEMBER(TYPE, FIELD)                                                                              \
-    inline RegisterType<TYPE> __TYPE##FIELD;                                                                      \
+    inline RegisterType<TYPE> __##TYPE##FIELD;                                                                    \
     inline static RegisterMember TYPE##FIELD{TypeId::create<TYPE>(),                                              \
                                              VariableId::create<decltype(TYPE::FIELD)>(),                         \
                                              #FIELD,                                                              \
