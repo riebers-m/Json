@@ -44,7 +44,7 @@ public:
 
     [[nodiscard]] constexpr TypeId get_type_id() const { return id; }
     [[nodiscard]] constexpr std::uint32_t get_offset() const { return offset; }
-    [[nodiscard]] std::string const &get_name() const { return get_member_info().name; }
+    [[nodiscard]] std::string get_name() const { return get_member_info().name; }
     [[nodiscard]] VariableId get_variable_id() const { return get_member_info().variable_id; }
     [[nodiscard]] std::uint32_t get_alignment() const { return get_member_info().alignment; }
     [[nodiscard]] std::uint32_t get_size() const { return get_member_info().size; }
